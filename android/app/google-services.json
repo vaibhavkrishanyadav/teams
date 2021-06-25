@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "164594029228",
+    "project_id": "teams-clone-e0f8c",
+    "storage_bucket": "teams-clone-e0f8c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164594029228:android:b3eba076005fc2dffc0509",
+        "android_client_info": {
+          "package_name": "com.vky.teams"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164594029228-19oeag7rtu07uct8ljla86l5ntsk92rg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBUCv7VjL28AdrL0GGuDlS-uk243ALlLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "164594029228-19oeag7rtu07uct8ljla86l5ntsk92rg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
