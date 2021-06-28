@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:teams/screens/home.dart';
 import 'package:teams/screens/home_screen.dart';
 import 'package:teams/screens/loginScreen.dart';
+import 'package:teams/screens/search_screen.dart';
 import 'package:teams/utils/firebase_repo.dart';
 
 void main() async {
@@ -33,16 +34,20 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
-      // home: FutureBuilder(
-      //     future: _repo.getCurrentUser(),
-      //     builder: (context, AsyncSnapshot<User> snapshot) {
-      //       if (snapshot.hasData) {
-      //         return Home();
-      //       } else {
-      //         return LoginScreen();
-      //       }
-      //     }),
+      initialRoute: '/',
+      routes: {
+        '/search_screen': (context) => SearchScreen(),
+      },
+      //home: HomeScreen(),
+      home: FutureBuilder(
+          future: _repo.getCurrentUser(),
+          builder: (context, AsyncSnapshot<User> snapshot) {
+            if (snapshot.hasData) {
+              return HomeScreen();
+            } else {
+              return LoginScreen();
+            }
+          }),
     );
   }
 }

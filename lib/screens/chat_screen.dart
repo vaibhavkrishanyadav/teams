@@ -1,176 +1,420 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:teams/models/message.dart';
+import 'package:teams/models/user.dart';
 import 'package:teams/utils/firebase_repo.dart';
-import 'package:teams/utils/utils.dart';
 import 'package:teams/widgets/chat_screen_tile.dart';
 import 'package:teams/widgets/custom_appbar.dart';
 
+import '../theme.dart';
+
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key key}) : super(key: key);
+  final UserModel receiver;
+
+  ChatScreen({this.receiver});
+
+  //const ChatScreen({Key key}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
- final FirebaseRepo repo = FirebaseRepo();
-
 class _ChatScreenState extends State<ChatScreen> {
-  String currentUserId;
-  String initials = '';
+  TextEditingController textFieldController = TextEditingController();
+  FirebaseRepo repo = FirebaseRepo();
+
+  UserModel sender;
+
+  String _currentUserId;
+
+  bool isWriting = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+
     repo.getCurrentUser().then((user) {
+      _currentUserId = user.uid;
+
       setState(() {
-        currentUserId = user.uid;
-        initials = Utils.getInitials(user.displayName);
+        sender = UserModel(
+          uid: user.uid,
+          name: user.displayName,
+          //profilePhoto: user.photoUrl,
+        );
       });
     });
   }
-
-  CustomAppBar customAppBar(BuildContext context) {
-    return CustomAppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.notifications,
-          color: Colors.white,
-        ),
-        onPressed: () {},
-      ),
-      title: UserCircle(initials),
-      centerTitle: true,
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.search,
-            color: Colors.white,
-          ),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.more_vert,
-            color: Colors.white,
-          ),
-          onPressed: () {},
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: customAppBar(context),
-      body: Container(
-        child: ListView.builder(
+      body: Column(
+        children: <Widget>[
+          Flexible(
+            child: messageList(),
+          ),
+          chatControls(),
+        ],
+      ),
+    );
+  }
+
+  Widget messageList() {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection("messages")
+          .doc(_currentUserId)
+          .collection(widget.receiver.uid)
+          .orderBy("timestamp", descending: true)
+          .snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.data == null) {
+          return Center(child: CircularProgressIndicator());
+        }
+        return ListView.builder(
           padding: EdgeInsets.all(10),
-          itemCount: 2,
+          itemCount: snapshot.data.docs.length,
+          reverse: true,
           itemBuilder: (context, index) {
-            return ChatScreenTile(
-              mini: false,
-              onTap: () {},
-              title: Text(
-                "The CS Guy",
-                style: TextStyle(
-                    color: Colors.white, fontFamily: "Arial", fontSize: 19),
-              ),
-              subtitle: Text(
-                "Hello",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
-              ),
-              leading: Container(
-                constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
-                child: Stack(
-                  children: <Widget>[
-                    CircleAvatar(
-                      maxRadius: 30,
-                      backgroundColor: Colors.grey,
-                      backgroundImage: NetworkImage("https://yt3.ggpht.com/a/AGF-l7_zT8BuWwHTymaQaBptCy7WrsOD72gYGp-puw=s900-c-k-c0xffffffff-no-rj-mo"),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        height: 13,
-                        width: 13,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.green,
-                            border: Border.all(
-                                color: Colors.black,
-                                width: 2
-                            )
+            return chatMessageItem(snapshot.data.docs[index]);
+          },
+        );
+      },
+    );
+  }
+
+  Widget chatMessageItem(QueryDocumentSnapshot<Object> snapshot) {
+    Message message = Message.fromMap(snapshot.data());
+
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 15),
+      child: Container(
+        alignment: message.senderId == _currentUserId
+            ? Alignment.centerRight
+            : Alignment.centerLeft,
+        child: message.senderId == _currentUserId
+            ? senderLayout(message)
+            : receiverLayout(message),
+      ),
+    );
+  }
+
+  Widget senderLayout(Message message) {
+    Radius messageRadius = Radius.circular(10);
+
+    return Container(
+      margin: EdgeInsets.only(top: 12),
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
+      decoration: BoxDecoration(
+        color: Color(0xff2b343b),
+        borderRadius: BorderRadius.only(
+          topLeft: messageRadius,
+          topRight: messageRadius,
+          bottomLeft: messageRadius,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: getMessage(message),
+      ),
+    );
+  }
+
+  getMessage(Message message) {
+    return Text(
+      message.message,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 16.0,
+      ),
+    );
+  }
+
+  Widget receiverLayout(Message message) {
+    Radius messageRadius = Radius.circular(10);
+
+    return Container(
+      margin: EdgeInsets.only(top: 12),
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
+      decoration: BoxDecoration(
+        color: Color(0xff1e2225),
+        borderRadius: BorderRadius.only(
+          bottomRight: messageRadius,
+          topRight: messageRadius,
+          bottomLeft: messageRadius,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: getMessage(message),
+      ),
+    );
+  }
+
+  Widget chatControls() {
+    setWritingTo(bool val) {
+      setState(() {
+        isWriting = val;
+      });
+    }
+
+    addMediaModal(context) {
+      showModalBottomSheet(
+          context: context,
+          elevation: 0,
+          backgroundColor: Colors.black,
+          builder: (context) {
+            return Column(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  child: Row(
+                    children: <Widget>[
+                      FlatButton(
+                        child: Icon(
+                          Icons.close,
+                        ),
+                        onPressed: () => Navigator.maybePop(context),
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Content and tools",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
-                    )
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                Flexible(
+                  child: ListView(
+                    children: <Widget>[
+                      ModalTile(
+                        title: "Media",
+                        subtitle: "Share Photos and Video",
+                        icon: Icons.image,
+                      ),
+                      ModalTile(
+                          title: "File",
+                          subtitle: "Share files",
+                          icon: Icons.tab),
+                      ModalTile(
+                          title: "Contact",
+                          subtitle: "Share contacts",
+                          icon: Icons.contacts),
+                      ModalTile(
+                          title: "Location",
+                          subtitle: "Share a location",
+                          icon: Icons.add_location),
+                      ModalTile(
+                          title: "Schedule Call",
+                          subtitle: "Arrange a skype call and get reminders",
+                          icon: Icons.schedule),
+                      ModalTile(
+                          title: "Create Poll",
+                          subtitle: "Share polls",
+                          icon: Icons.poll)
+                    ],
+                  ),
+                ),
+              ],
             );
           },
-        ),
+      );
+    }
+
+    sendMessage() {
+      var text = textFieldController.text;
+
+      Message _message = Message(
+        receiverId: widget.receiver.uid,
+        senderId: sender.uid,
+        message: text,
+        timestamp: Timestamp.now(),
+        type: 'text',
+      );
+
+      setState(() {
+        isWriting = false;
+      });
+
+      textFieldController.text = "";
+
+      repo.addMessageToDb(_message, sender, widget.receiver);
+    }
+
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Row(
+        children: <Widget>[
+          GestureDetector(
+            onTap: () => addMediaModal(context),
+            child: Container(
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    CustomTheme.loginGradientStart,
+                    CustomTheme.loginGradientEnd
+                  ],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.add),
+            ),
+          ),
+          SizedBox(
+            width: 5,
+          ),
+          Expanded(
+            child: TextField(
+              controller: textFieldController,
+              style: TextStyle(
+                color: Colors.white,
+              ),
+              onChanged: (val) {
+                (val.length > 0 && val.trim() != "")
+                    ? setWritingTo(true)
+                    : setWritingTo(false);
+              },
+              decoration: InputDecoration(
+                hintText: "Type a message",
+                hintStyle: TextStyle(
+                  color: Color(0xff8f8f8f),
+                ),
+                border: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(
+                      const Radius.circular(50.0),
+                    ),
+                    borderSide: BorderSide.none),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                filled: true,
+                fillColor: Color(0xff272c35),
+                suffixIcon: GestureDetector(
+                  onTap: () {},
+                  child: Icon(Icons.face),
+                ),
+              ),
+            ),
+          ),
+          isWriting
+              ? Container()
+              : Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Icon(Icons.record_voice_over, color: Colors.white,),
+                ),
+          isWriting ? Container() : Container(child: Icon(Icons.camera_alt, color: Colors.white,)),
+          isWriting
+              ? Container(
+                  margin: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          CustomTheme.loginGradientStart,
+                          CustomTheme.loginGradientEnd
+                        ],
+                      ),
+                      shape: BoxShape.circle),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.send,
+                      size: 15,
+                    ),
+                    onPressed: () => sendMessage(),
+                  ))
+              : Container()
+        ],
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(50)),
-        child: Icon(
-          Icons.edit,
-          color: Colors.white,
-          size: 25,
+    );
+  }
+
+  CustomAppBar customAppBar(context) {
+    return CustomAppBar(
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
         ),
-        padding: EdgeInsets.all(15),
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
+      centerTitle: false,
+      title: Text(
+        widget.receiver.name,
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(
+            Icons.video_call,
+          ),
+          onPressed: () {},
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.phone,
+          ),
+          onPressed: () {},
+        )
+      ],
     );
   }
 }
 
+class ModalTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
 
-class UserCircle extends StatelessWidget {
-  final String text;
-
-  UserCircle(this.text);
+  const ModalTile({
+    @required this.title,
+    @required this.subtitle,
+    @required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50),
-        color: Colors.grey,
-      ),
-      child: Stack(
-        children: <Widget>[
-          Align(
-            alignment: Alignment.center,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-                fontSize: 13,
-              ),
-            ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: ChatScreenTile(
+        mini: false,
+        leading: Container(
+          margin: EdgeInsets.only(right: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: Color(0xff1e2225),
           ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Container(
-              height: 12,
-              width: 12,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: Colors.black, width: 2),
-                  color: Colors.green),
-            ),
-          )
-        ],
+          padding: EdgeInsets.all(10),
+          child: Icon(
+            icon,
+            color: Color(0xff8f8f8f),
+            size: 38,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            color: Color(0xff8f8f8f),
+            fontSize: 14,
+          ),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
       ),
     );
   }

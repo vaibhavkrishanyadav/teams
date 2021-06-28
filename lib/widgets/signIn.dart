@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:teams/screens/home.dart';
+import 'package:teams/screens/home_screen.dart';
 import 'package:teams/theme.dart';
 import 'package:teams/utils/firebase_repo.dart';
 import 'snackbar.dart';
@@ -266,14 +267,14 @@ class _SignInState extends State<SignIn> {
 
                               Navigator.pushReplacement(context,
                                   MaterialPageRoute(builder: (context) {
-                                    return Home();
+                                    return HomeScreen();
                               }));
 
                             });
                           } else {
                             Navigator.pushReplacement(context,
                                 MaterialPageRoute(builder: (context) {
-                                  return Home();
+                                  return HomeScreen();
                                 }));
                           }
                         });

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
 
 class FirebaseMethods {
@@ -59,5 +60,35 @@ class FirebaseMethods {
     await googleSignIn.disconnect();
     await googleSignIn.signOut();
     return await auth.signOut();
+  }
+
+  Future<List<UserModel>> fetchAllUsers(User currentUser) async {
+    var userList = <UserModel>[];
+
+    QuerySnapshot querySnapshot =
+    await firebaseFirestore.collection("users").get();
+    for (var i = 0; i < querySnapshot.docs.length; i++) {
+      if (querySnapshot.docs[i].id != currentUser.uid) {
+        userList.add(UserModel.fromMap(querySnapshot.docs[i].data()));
+      }
+    }
+    return userList;
+  }
+
+  Future<void> addMessageToDb(
+      Message message, UserModel sender, UserModel receiver) async {
+    var map = message.toMap();
+
+    await firebaseFirestore
+        .collection("messages")
+        .doc(message.senderId)
+        .collection(message.receiverId)
+        .add(map);
+
+    return await firebaseFirestore
+        .collection("messages")
+        .doc(message.receiverId)
+        .collection(message.senderId)
+        .add(map);
   }
 }

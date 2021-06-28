@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'chat_screen.dart';
+import 'chat_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: PageView(
         children: <Widget>[
           Container(
-            child: ChatScreen(),
+            child: ChatListScreen(),
           ),
           Center(child: Text("Group", style: TextStyle(color: Colors.white),)),
           Center(child: Text("Call Logs", style: TextStyle(color: Colors.white),)),
