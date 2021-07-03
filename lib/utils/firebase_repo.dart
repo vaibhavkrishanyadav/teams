@@ -8,6 +8,8 @@ class FirebaseRepo {
 
   Future<User> getCurrentUser() => firebaseMethods.getCurrentUser();
 
+  Future<UserModel> getUserDetails() => firebaseMethods.getUserDetails();
+
   Future<User> signInWithGoogle() => firebaseMethods.signInWithGoogle();
 
   Future<bool> authenticateUser(User user) => firebaseMethods.authenticateUser(user);

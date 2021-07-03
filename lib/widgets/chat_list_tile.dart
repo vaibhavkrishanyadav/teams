@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ChatScreenTile extends StatelessWidget {
+class ChatListTile extends StatelessWidget {
   //const ChatScreenTile({Key key}) : super(key: key);
 
   final Widget leading;
@@ -13,7 +13,7 @@ class ChatScreenTile extends StatelessWidget {
   final GestureTapCallback onTap;
   final GestureLongPressCallback onLongPress;
 
-  ChatScreenTile({
+  ChatListTile({
     @required this.leading,
     @required this.title,
     this.icon,

@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
+import 'package:teams/utils/call_methods.dart';
 import 'package:teams/utils/firebase_repo.dart';
-import 'package:teams/widgets/chat_screen_tile.dart';
+import 'package:teams/utils/utils.dart';
+import 'package:teams/widgets/chat_list_tile.dart';
 import 'package:teams/widgets/custom_appbar.dart';
 
 import '../theme.dart';
@@ -45,6 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,71 +171,71 @@ class _ChatScreenState extends State<ChatScreen> {
 
     addMediaModal(context) {
       showModalBottomSheet(
-          context: context,
-          elevation: 0,
-          backgroundColor: Colors.black,
-          builder: (context) {
-            return Column(
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  child: Row(
-                    children: <Widget>[
-                      FlatButton(
-                        child: Icon(
-                          Icons.close,
+        context: context,
+        elevation: 0,
+        backgroundColor: Colors.black,
+        builder: (context) {
+          return Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: Row(
+                  children: <Widget>[
+                    FlatButton(
+                      child: Icon(
+                        Icons.close,
+                      ),
+                      onPressed: () => Navigator.maybePop(context),
+                    ),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Content and tools",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
                         ),
-                        onPressed: () => Navigator.maybePop(context),
                       ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Content and tools",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Flexible(
-                  child: ListView(
-                    children: <Widget>[
-                      ModalTile(
-                        title: "Media",
-                        subtitle: "Share Photos and Video",
-                        icon: Icons.image,
-                      ),
-                      ModalTile(
-                          title: "File",
-                          subtitle: "Share files",
-                          icon: Icons.tab),
-                      ModalTile(
-                          title: "Contact",
-                          subtitle: "Share contacts",
-                          icon: Icons.contacts),
-                      ModalTile(
-                          title: "Location",
-                          subtitle: "Share a location",
-                          icon: Icons.add_location),
-                      ModalTile(
-                          title: "Schedule Call",
-                          subtitle: "Arrange a skype call and get reminders",
-                          icon: Icons.schedule),
-                      ModalTile(
-                          title: "Create Poll",
-                          subtitle: "Share polls",
-                          icon: Icons.poll)
-                    ],
-                  ),
+              ),
+              Flexible(
+                child: ListView(
+                  children: <Widget>[
+                    ModalTile(
+                      title: "Media",
+                      subtitle: "Share Photos and Video",
+                      icon: Icons.image,
+                    ),
+                    ModalTile(
+                        title: "File",
+                        subtitle: "Share files",
+                        icon: Icons.tab),
+                    ModalTile(
+                        title: "Contact",
+                        subtitle: "Share contacts",
+                        icon: Icons.contacts),
+                    ModalTile(
+                        title: "Location",
+                        subtitle: "Share a location",
+                        icon: Icons.add_location),
+                    ModalTile(
+                        title: "Schedule Call",
+                        subtitle: "Arrange a skype call and get reminders",
+                        icon: Icons.schedule),
+                    ModalTile(
+                        title: "Create Poll",
+                        subtitle: "Share polls",
+                        icon: Icons.poll)
+                  ],
                 ),
-              ],
-            );
-          },
+              ),
+            ],
+          );
+        },
       );
     }
 
@@ -311,9 +318,20 @@ class _ChatScreenState extends State<ChatScreen> {
               ? Container()
               : Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(Icons.record_voice_over, color: Colors.white,),
+                  child: Icon(
+                    Icons.record_voice_over,
+                    color: Colors.white,
+                  ),
                 ),
-          isWriting ? Container() : Container(child: Icon(Icons.camera_alt, color: Colors.white,)),
+          isWriting
+              ? Container()
+              : GestureDetector(
+                  child: Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                  ),
+                  // onTap: () => pickImage(source: ImageSource.camera),
+                ),
           isWriting
               ? Container(
                   margin: EdgeInsets.only(left: 10),
@@ -357,7 +375,15 @@ class _ChatScreenState extends State<ChatScreen> {
           icon: Icon(
             Icons.video_call,
           ),
-          onPressed: () {},
+          onPressed: () async {
+            await _handleCameraAndMic(Permission.camera);
+            await _handleCameraAndMic(Permission.microphone);
+            CallUtils.dial(
+              from: sender,
+              to: widget.receiver,
+              context: context,
+            );
+          },
         ),
         IconButton(
           icon: Icon(
@@ -367,6 +393,11 @@ class _ChatScreenState extends State<ChatScreen> {
         )
       ],
     );
+  }
+
+  Future<void> _handleCameraAndMic(Permission permission) async {
+    final status = await permission.request();
+    print(status);
   }
 }
 
@@ -385,7 +416,7 @@ class ModalTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15),
-      child: ChatScreenTile(
+      child: ChatListTile(
         mini: false,
         leading: Container(
           margin: EdgeInsets.only(right: 10),

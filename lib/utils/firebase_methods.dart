@@ -1,14 +1,27 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:teams/models/contact.dart';
 import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
+import 'package:teams/utils/utils.dart';
 
 class FirebaseMethods {
 
   final FirebaseAuth auth = FirebaseAuth.instance;
+
   GoogleSignIn googleSignIn = GoogleSignIn();
+
   static final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+  static final CollectionReference userCollection =
+    firebaseFirestore.collection("users");
+
+  //StorageReference storageReference;
 
   /// User class
   UserModel userModel = UserModel();
@@ -17,6 +30,30 @@ class FirebaseMethods {
     User currentUser;
     currentUser = await auth.currentUser;
     return currentUser;
+  }
+
+  Future<UserModel> getUserDetails() async {
+    User currentUser = await getCurrentUser();
+
+    print(currentUser.uid);
+
+    DocumentSnapshot documentSnapshot =
+    await userCollection.doc(currentUser.uid).get();
+
+    print(documentSnapshot.data());
+
+    return UserModel.fromMap(documentSnapshot.data());
+  }
+
+  Future<UserModel> getUserDetailsById(id) async {
+    try {
+      DocumentSnapshot documentSnapshot =
+      await firebaseFirestore.collection("users").doc(id).get();
+      return UserModel.fromMap(documentSnapshot.data());
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   Future<User> signInWithGoogle() async {
@@ -56,11 +93,28 @@ class FirebaseMethods {
         .set(userModel.toMap(userModel));
   }
 
-  Future<void> signOut() async {
-    await googleSignIn.disconnect();
-    await googleSignIn.signOut();
-    return await auth.signOut();
+  Future<bool> signOut() async {
+    try {
+      await googleSignIn.signOut();
+      await auth.signOut();
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
+
+
+  void setUserState({@required String userId, @required UserState userState}) {
+    int stateNum = Utils.stateToNum(userState);
+
+    firebaseFirestore.collection("users").doc(userId).update({
+      "state": stateNum,
+    });
+  }
+
+  Stream<DocumentSnapshot> getUserStream({@required String uid}) =>
+      firebaseFirestore.collection("users").doc(uid).snapshots();
 
   Future<List<UserModel>> fetchAllUsers(User currentUser) async {
     var userList = <UserModel>[];
@@ -85,10 +139,87 @@ class FirebaseMethods {
         .collection(message.receiverId)
         .add(map);
 
+    addToContacts(senderId: message.senderId, receiverId: message.receiverId);
+
     return await firebaseFirestore
         .collection("messages")
         .doc(message.receiverId)
         .collection(message.senderId)
         .add(map);
   }
+
+  DocumentReference getContactsDocument({String of, String forContact}) =>
+      firebaseFirestore
+          .collection("users")
+          .doc(of)
+          .collection("contacts")
+          .doc(forContact);
+
+  addToContacts({String senderId, String receiverId}) async {
+    Timestamp currentTime = Timestamp.now();
+
+    await addToSenderContacts(senderId, receiverId, currentTime);
+    await addToReceiverContacts(senderId, receiverId, currentTime);
+  }
+
+  Future<void> addToSenderContacts(
+      String senderId,
+      String receiverId,
+      currentTime,
+      ) async {
+    DocumentSnapshot senderSnapshot =
+    await getContactsDocument(of: senderId, forContact: receiverId).get();
+
+    if (!senderSnapshot.exists) {
+      //does not exists
+      Contact receiverContact = Contact(
+        uid: receiverId,
+        addedOn: currentTime,
+      );
+
+      var receiverMap = receiverContact.toMap(receiverContact);
+
+      await getContactsDocument(of: senderId, forContact: receiverId)
+          .set(receiverMap);
+    }
+  }
+
+  Future<void> addToReceiverContacts(
+      String senderId,
+      String receiverId,
+      currentTime,
+      ) async {
+    DocumentSnapshot receiverSnapshot =
+    await getContactsDocument(of: receiverId, forContact: senderId).get();
+
+    if (!receiverSnapshot.exists) {
+      //does not exists
+      Contact senderContact = Contact(
+        uid: senderId,
+        addedOn: currentTime,
+      );
+
+      var senderMap = senderContact.toMap(senderContact);
+
+      await getContactsDocument(of: receiverId, forContact: senderId)
+          .set(senderMap);
+    }
+  }
+
+  Stream<QuerySnapshot> fetchContacts({String userId}) => firebaseFirestore
+      .collection("users")
+      .doc(userId)
+      .collection("contacts")
+      .snapshots();
+
+  Stream<QuerySnapshot> fetchLastMessageBetween({
+    @required String senderId,
+    @required String receiverId,
+  }) =>
+      firebaseFirestore
+          .collection("messages")
+          .doc(senderId)
+          .collection(receiverId)
+          .orderBy("timestamp")
+          .snapshots();
 }

@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/utils/firebase_repo.dart';
-import 'package:teams/widgets/chat_screen_tile.dart';
+import 'package:teams/widgets/chat_list_tile.dart';
 
 import '../theme.dart';
 import 'chat_screen.dart';
@@ -114,7 +114,7 @@ class _SearchScreenState extends State<SearchScreen> {
             name: suggestionList[index].name,
             email: suggestionList[index].email);
 
-        return ChatScreenTile(
+        return ChatListTile(
           mini: false,
           onTap: () {
             Navigator.push(

@@ -1,6 +1,18 @@
-/// Define App ID and Token
-const APP_ID = '01eab1e053944f3bb50a39eaf4c43013';
-const Token = '00601eab1e053944f3bb50a39eaf4c43013IADgPHEsyKRA9g3HkPzScB5X4qBpLL1Hofaw62+g0xD2S1u/UFYAAAAAEAAm+nFWZ1TUYAEAAQBmVNRg';
+import 'dart:io';
+import 'dart:math';
+import 'package:image/image.dart' as Im;
+import 'package:image_picker/image_picker.dart';
+import 'package:meta/meta.dart';
+import 'package:path_provider/path_provider.dart';
+
+/// Define App ID
+const APP_ID = 'dea3f55a420b46f79148041557218540';
+
+enum UserState{
+  Offline,
+  Online,
+  Waiting,
+}
 
 class Utils {
 
@@ -11,4 +23,47 @@ class Utils {
     return firstNameInitial + lastNameInitial;
   }
 
+  static Future<File> pickImage({@required ImageSource source}) async {
+    File selectedImage = await ImagePicker().getImage(source: source) as File;
+    return await compressImage(selectedImage);
+  }
+
+  static Future<File> compressImage(File imageToCompress) async {
+    final tempDir = await getTemporaryDirectory();
+    final path = tempDir.path;
+    int rand = Random().nextInt(10000);
+
+    Im.Image image = Im.decodeImage(imageToCompress.readAsBytesSync());
+    Im.copyResize(image, width: 500, height: 500);
+
+    return new File('$path/img_$rand.jpg')
+      ..writeAsBytesSync(Im.encodeJpg(image, quality: 85));
+  }
+
+  static int stateToNum(UserState userState) {
+    switch (userState) {
+      case UserState.Offline:
+        return 0;
+
+      case UserState.Online:
+        return 1;
+
+      default:
+        return 2;
+    }
+  }
+
+  static UserState numToState(int number) {
+    switch (number) {
+      case 0:
+        return UserState.Offline;
+
+      case 1:
+        return UserState.Online;
+
+      default:
+        return UserState.Waiting;
+    }
+  }
 }
+
