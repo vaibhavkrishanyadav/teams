@@ -51,7 +51,8 @@ class _LoginScreenState extends State<LoginScreen>
                 begin: FractionalOffset(0.0, 0.0),
                 end: FractionalOffset(1.0, 1.0),
                 stops: <double>[0.0, 1.0],
-                tileMode: TileMode.clamp),
+                tileMode: TileMode.clamp,
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.max,

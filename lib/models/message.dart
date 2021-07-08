@@ -7,7 +7,7 @@ class Message {
   Message({this.senderId, this.receiverId, this.type, this.message, this.timestamp});
 
   //to send image
-  Message.imageMessage({this.senderId, this.receiverId, this.message, this.type, this.timestamp, this.photoUrl});
+  //Message.imageMessage({this.senderId, this.receiverId, this.message, this.type, this.timestamp, this.photoUrl});
 
   Map toMap() {
     var map = Map<String, dynamic>();

@@ -1,25 +1,17 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/utils/call_methods.dart';
 import 'package:teams/utils/firebase_repo.dart';
-import 'package:teams/utils/utils.dart';
-import 'package:teams/widgets/chat_list_tile.dart';
-import 'package:teams/widgets/custom_appbar.dart';
-
 import '../theme.dart';
 
 class ChatScreen extends StatefulWidget {
   final UserModel receiver;
+  final int no;
 
-  ChatScreen({this.receiver});
-
-  //const ChatScreen({Key key}) : super(key: key);
+  ChatScreen({this.receiver, this.no});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -55,8 +47,39 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: customAppBar(context),
+      //backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        centerTitle: false,
+        title: Text(
+          widget.receiver.name,
+        ),
+        actions: <Widget>[
+          (widget.no == 1) ? IconButton(
+            icon: Icon(
+              Icons.video_call,
+            ),
+            onPressed: () async {
+              await _handleCameraAndMic(Permission.camera);
+              await _handleCameraAndMic(Permission.microphone);
+              CallUtils.dial(
+                from: sender,
+                to: widget.receiver,
+                context: context,
+              );
+            },
+          )
+              : Container(),
+        ],
+      ),
       body: Column(
         children: <Widget>[
           Flexible(
@@ -116,7 +139,7 @@ class _ChatScreenState extends State<ChatScreen> {
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
       decoration: BoxDecoration(
-        color: Color(0xff2b343b),
+        color: Colors.deepOrangeAccent,
         borderRadius: BorderRadius.only(
           topLeft: messageRadius,
           topRight: messageRadius,
@@ -148,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
       decoration: BoxDecoration(
-        color: Color(0xff1e2225),
+        color: Colors.orange,
         borderRadius: BorderRadius.only(
           bottomRight: messageRadius,
           topRight: messageRadius,
@@ -167,76 +190,6 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         isWriting = val;
       });
-    }
-
-    addMediaModal(context) {
-      showModalBottomSheet(
-        context: context,
-        elevation: 0,
-        backgroundColor: Colors.black,
-        builder: (context) {
-          return Column(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: Row(
-                  children: <Widget>[
-                    FlatButton(
-                      child: Icon(
-                        Icons.close,
-                      ),
-                      onPressed: () => Navigator.maybePop(context),
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Content and tools",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: ListView(
-                  children: <Widget>[
-                    ModalTile(
-                      title: "Media",
-                      subtitle: "Share Photos and Video",
-                      icon: Icons.image,
-                    ),
-                    ModalTile(
-                        title: "File",
-                        subtitle: "Share files",
-                        icon: Icons.tab),
-                    ModalTile(
-                        title: "Contact",
-                        subtitle: "Share contacts",
-                        icon: Icons.contacts),
-                    ModalTile(
-                        title: "Location",
-                        subtitle: "Share a location",
-                        icon: Icons.add_location),
-                    ModalTile(
-                        title: "Schedule Call",
-                        subtitle: "Arrange a skype call and get reminders",
-                        icon: Icons.schedule),
-                    ModalTile(
-                        title: "Create Poll",
-                        subtitle: "Share polls",
-                        icon: Icons.poll)
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      );
     }
 
     sendMessage() {
@@ -263,25 +216,6 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: EdgeInsets.all(10),
       child: Row(
         children: <Widget>[
-          GestureDetector(
-            onTap: () => addMediaModal(context),
-            child: Container(
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    CustomTheme.loginGradientStart,
-                    CustomTheme.loginGradientEnd
-                  ],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.add),
-            ),
-          ),
-          SizedBox(
-            width: 5,
-          ),
           Expanded(
             child: TextField(
               controller: textFieldController,
@@ -307,91 +241,33 @@ class _ChatScreenState extends State<ChatScreen> {
                     EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 filled: true,
                 fillColor: Color(0xff272c35),
-                suffixIcon: GestureDetector(
-                  onTap: () {},
-                  child: Icon(Icons.face),
-                ),
+                // suffixIcon: GestureDetector(
+                //   onTap: () {},
+                //   child: Icon(Icons.face),
+                // ),
               ),
             ),
           ),
-          isWriting
-              ? Container()
-              : Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(
-                    Icons.record_voice_over,
-                    color: Colors.white,
+          Container(
+              margin: EdgeInsets.only(left: 10),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      CustomTheme.loginGradientStart,
+                      CustomTheme.loginGradientEnd,
+                    ],
                   ),
+                  shape: BoxShape.circle),
+              child: IconButton(
+                icon: Icon(
+                  Icons.send,
+                  size: 15,
                 ),
-          isWriting
-              ? Container()
-              : GestureDetector(
-                  child: Icon(
-                    Icons.camera_alt,
-                    color: Colors.white,
-                  ),
-                  // onTap: () => pickImage(source: ImageSource.camera),
-                ),
-          isWriting
-              ? Container(
-                  margin: EdgeInsets.only(left: 10),
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          CustomTheme.loginGradientStart,
-                          CustomTheme.loginGradientEnd
-                        ],
-                      ),
-                      shape: BoxShape.circle),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      size: 15,
-                    ),
-                    onPressed: () => sendMessage(),
-                  ))
-              : Container()
+                onPressed: () => isWriting ? sendMessage() : {},
+              ),
+          ),
         ],
       ),
-    );
-  }
-
-  CustomAppBar customAppBar(context) {
-    return CustomAppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-        ),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
-      centerTitle: false,
-      title: Text(
-        widget.receiver.name,
-      ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.video_call,
-          ),
-          onPressed: () async {
-            await _handleCameraAndMic(Permission.camera);
-            await _handleCameraAndMic(Permission.microphone);
-            CallUtils.dial(
-              from: sender,
-              to: widget.receiver,
-              context: context,
-            );
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.phone,
-          ),
-          onPressed: () {},
-        )
-      ],
     );
   }
 
@@ -401,52 +277,52 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-class ModalTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-
-  const ModalTile({
-    @required this.title,
-    @required this.subtitle,
-    @required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: ChatListTile(
-        mini: false,
-        leading: Container(
-          margin: EdgeInsets.only(right: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            color: Color(0xff1e2225),
-          ),
-          padding: EdgeInsets.all(10),
-          child: Icon(
-            icon,
-            color: Color(0xff8f8f8f),
-            size: 38,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: Color(0xff8f8f8f),
-            fontSize: 14,
-          ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class ModalTile extends StatelessWidget {
+//   final String title;
+//   final String subtitle;
+//   final IconData icon;
+//
+//   const ModalTile({
+//     @required this.title,
+//     @required this.subtitle,
+//     @required this.icon,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 15),
+//       child: ChatListTile(
+//         mini: false,
+//         leading: Container(
+//           margin: EdgeInsets.only(right: 10),
+//           decoration: BoxDecoration(
+//             borderRadius: BorderRadius.circular(15),
+//             color: Colors.orange,
+//           ),
+//           padding: EdgeInsets.all(10),
+//           child: Icon(
+//             icon,
+//             color: Color(0xff8f8f8f),
+//             size: 38,
+//           ),
+//         ),
+//         subtitle: Text(
+//           subtitle,
+//           style: TextStyle(
+//             color: Color(0xff8f8f8f),
+//             fontSize: 14,
+//           ),
+//         ),
+//         title: Text(
+//           title,
+//           style: TextStyle(
+//             fontWeight: FontWeight.bold,
+//             color: Colors.white,
+//             fontSize: 18,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

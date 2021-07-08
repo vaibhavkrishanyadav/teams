@@ -23,7 +23,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  FirebaseRepo _repo = FirebaseRepo();
+  FirebaseRepo repo = FirebaseRepo();
 
   @override
   void initState() {
@@ -39,12 +39,13 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        darkTheme: ThemeData(brightness: Brightness.dark),
         initialRoute: '/',
         routes: {
           '/search_screen': (context) => SearchScreen(),
         },
         home: FutureBuilder(
-            future: _repo.getCurrentUser(),
+            future: repo.getCurrentUser(),
             builder: (context, AsyncSnapshot<User> snapshot) {
               if (snapshot.hasData) {
                 return HomeScreen();

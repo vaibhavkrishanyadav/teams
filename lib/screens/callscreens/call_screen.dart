@@ -7,18 +7,21 @@ import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:teams/models/call.dart';
+import 'package:teams/models/user.dart';
 import 'package:teams/provider/user_provider.dart';
 import 'package:teams/utils/call_methods.dart';
 import 'package:teams/utils/utils.dart';
 
+import '../chat_screen.dart';
+
 class CallScreen extends StatefulWidget {
   final Call call;
+  final UserModel receiver;
 
   CallScreen({
     @required this.call,
+    this.receiver,
   });
-
-  // const CallScreen({Key key}) : super(key: key);
 
   @override
   _CallScreenState createState() => _CallScreenState();
@@ -270,12 +273,12 @@ class _CallScreenState extends State<CallScreen> {
             onPressed: _onToggleMute,
             child: Icon(
               muted ? Icons.mic : Icons.mic_off,
-              color: muted ? Colors.white : Colors.blueAccent,
+              color: muted ? Colors.white : Colors.orange,
               size: 20.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
-            fillColor: muted ? Colors.blueAccent : Colors.white,
+            fillColor: muted ? Colors.orange : Colors.white,
             padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
@@ -299,14 +302,33 @@ class _CallScreenState extends State<CallScreen> {
             onPressed: _onSwitchCamera,
             child: Icon(
               Icons.switch_camera,
-              color: Colors.blueAccent,
+              color: Colors.orange,
               size: 20.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
             fillColor: Colors.white,
             padding: const EdgeInsets.all(12.0),
-          )
+          ),
+          RawMaterialButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                  receiver: widget.receiver,
+                  no: 0,
+                ),
+              )),
+            child: Icon(
+              Icons.chat,
+              color: Colors.orange,
+              size: 20.0,
+            ),
+            shape: CircleBorder(),
+            elevation: 2.0,
+            fillColor: Colors.white,
+            padding: const EdgeInsets.all(12.0),
+          ),
         ],
       ),
     );

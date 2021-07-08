@@ -1,6 +1,7 @@
 class UserModel {
   String uid, name, email, username, status;
   int state;
+  List<String> groups;
 
   UserModel({
     this.uid,
@@ -9,6 +10,7 @@ class UserModel {
     this.username,
     this.status,
     this.state,
+    this.groups,
 });
 
   Map toMap(UserModel userModel) {
@@ -19,6 +21,7 @@ class UserModel {
     data['username'] = userModel.username;
     data['status'] = userModel.status;
     data['state'] = userModel.state;
+    data['groups'] = userModel.groups;
     return data;
   }
 
@@ -29,5 +32,10 @@ class UserModel {
     this.username = mapData['username'];
     this.status = mapData['status'];
     this.state = mapData['state'];
+    var gr = <String>[];
+    (mapData['groups'] as List).forEach((e) {
+      gr.add(e.toString());
+    });
+    this.groups = gr;
   }
 }

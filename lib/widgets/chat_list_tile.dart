@@ -33,6 +33,14 @@ class ChatListTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: mini ? 10 : 0),
         margin: margin,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              width: 1,
+              color: Colors.grey,
+            ),
+          ),
+        ),
         child: Row(
           children: <Widget>[
             leading,
@@ -40,14 +48,6 @@ class ChatListTile extends StatelessWidget {
               child: Container(
                 margin: EdgeInsets.only(left: mini ? 10 : 15),
                 padding: EdgeInsets.symmetric(vertical: mini ? 3 : 20),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      width: 1,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[

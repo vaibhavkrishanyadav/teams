@@ -9,9 +9,8 @@ import 'package:teams/utils/firebase_methods.dart';
 import 'package:teams/utils/firebase_repo.dart';
 import 'package:teams/utils/utils.dart';
 import 'package:teams/widgets/chat_list_tile.dart';
-import 'package:teams/widgets/custom_appbar.dart';
 import 'package:teams/widgets/dot_indicator.dart';
-import 'package:teams/widgets/user_profile.dart';
+import 'package:teams/widgets/user_circle.dart';
 
 import 'callscreens/pickup_screen.dart';
 import 'chat_screen.dart';
@@ -43,46 +42,25 @@ class _ChatListScreenState extends State<ChatListScreen> {
     });
   }
 
-  CustomAppBar customAppBar(BuildContext context) {
-    return CustomAppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.notifications,
-          color: Colors.white,
-        ),
-        onPressed: () {},
-      ),
-      title: UserCircle(),
-      centerTitle: true,
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.search,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.pushNamed(context, '/search_screen');
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.more_vert,
-            color: Colors.white,
-          ),
-          onPressed: () {},
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final UserProvider userProvider = Provider.of<UserProvider>(context);
 
     return PickupLayout(
       scaffold: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: customAppBar(context),
+        //backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.orange,
+          leading: UserCircle(),
+          title: Text(
+            "Chats",
+            style: TextStyle(
+                color: Colors.white,
+                fontFamily: "Arial",
+                fontSize: 24),
+          ),
+          centerTitle: true,
+        ),
         body: Container(
           child: StreamBuilder<QuerySnapshot>(
               stream: firebaseMethods.fetchContacts(
@@ -114,6 +92,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                   MaterialPageRoute(
                                     builder: (context) => ChatScreen(
                                       receiver: user,
+                                      no: 1,
                                     ),
                                   )),
                               title: Text(
@@ -121,7 +100,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                     ? user.name
                                     : "..",
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    //color: Colors.white,
                                     fontFamily: "Arial",
                                     fontSize: 19),
                               ),
@@ -134,19 +113,21 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               leading: Container(
                                 constraints:
                                     BoxConstraints(maxHeight: 60, maxWidth: 60),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(80),
+                                  color: Colors.brown,
+                                ),
                                 child: Stack(
                                   children: <Widget>[
-                                    // CachedImage(
-                                    //   contact.profilePhoto,
-                                    //   radius: 80,
-                                    //   isRound: true,
-                                    // ),
-                                    Container(
-                                      height: 40,
-                                      width: 40,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(50),
-                                        color: Colors.grey,
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        Utils.getInitials(user.name),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                        ),
                                       ),
                                     ),
                                     DotIndicator(
@@ -157,9 +138,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               ),
                             );
                           }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          return Container();
                         },
                       );
                     },
@@ -171,63 +150,18 @@ class _ChatListScreenState extends State<ChatListScreen> {
         ),
         floatingActionButton: Container(
           decoration: BoxDecoration(
-              color: Colors.blue, borderRadius: BorderRadius.circular(50)),
-          child: Icon(
-            Icons.edit,
-            color: Colors.white,
-            size: 25,
-          ),
-          padding: EdgeInsets.all(15),
-        ),
-      ),
-    );
-  }
-}
-
-class UserCircle extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final UserProvider userProvider = Provider.of<UserProvider>(context);
-
-    return GestureDetector(
-      onTap: () => showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        backgroundColor: Colors.black,
-        builder: (context) => UserProfile(),
-      ),
-      child: Container(
-        height: 40,
-        width: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(50),
-          color: Colors.grey,
-        ),
-        child: Stack(
-          children: <Widget>[
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                Utils.getInitials(userProvider.getUser.name),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.lightBlue,
-                  fontSize: 13,
-                ),
-              ),
+              color: Colors.orange, borderRadius: BorderRadius.circular(50)),
+          child: IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/search_screen');
+            },
+            icon: Icon(
+              Icons.edit,
+              color: Colors.white,
+              size: 25,
             ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                height: 12,
-                width: 12,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black, width: 2),
-                    color: Colors.green),
-              ),
-            )
-          ],
+            padding: EdgeInsets.all(15),
+          ),
         ),
       ),
     );
