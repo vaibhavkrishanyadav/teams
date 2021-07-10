@@ -1,3 +1,6 @@
+
+// A call model user for mapping call data from firebase
+
 class Call {
   String callerId;
   String callerName;

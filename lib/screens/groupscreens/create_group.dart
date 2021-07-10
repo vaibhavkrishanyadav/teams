@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/utils/firebase_methods.dart';
 
+/// Create group widget for creating the new group with group name
+
 class CreateGroup extends StatefulWidget {
   final UserModel currentUser;
 
@@ -70,7 +72,9 @@ class _CreateGroupState extends State<CreateGroup> {
                         color: Colors.black54,
                       ),
                       hintText: "Group Name",
-                      hintStyle: TextStyle(color: Colors.black54),
+                      hintStyle: TextStyle(
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   SizedBox(

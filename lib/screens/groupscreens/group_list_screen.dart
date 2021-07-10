@@ -7,8 +7,11 @@ import 'package:teams/utils/firebase_methods.dart';
 import 'package:teams/widgets/chat_list_tile.dart';
 import 'package:teams/widgets/user_circle.dart';
 
+import '../../theme.dart';
 import 'create_group.dart';
 import 'join_group.dart';
+
+// group list screen for showing all the groups in which the user is the member
 
 class GroupListScreen extends StatefulWidget {
   const GroupListScreen({Key key}) : super(key: key);
@@ -60,136 +63,185 @@ class _GroupListScreenState extends State<GroupListScreen> {
         ),
         centerTitle: true,
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                RaisedButton(
-                  child: Row(
-                    children: [
-                      Text(
-                        "Create",
-                        style: TextStyle(
-                          fontFamily: "Arial",
-                          fontSize: 17,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Icon(Icons.group),
-                    ],
-                  ),
-                  onPressed: () => _goToCreate(context),
-                  color: Theme.of(context).canvasColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                    side: BorderSide(
-                      color: Theme.of(context).secondaryHeaderColor,
-                      width: 2,
-                    ),
-                  ),
-                ),
-                RaisedButton(
-                  child: Row(
-                    children: [
-                      Text(
-                        "Join",
-                        style: TextStyle(
-                          fontFamily: "Arial",
-                          fontSize: 17,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Icon(Icons.group),
-                    ],
-                  ),
-                  onPressed: () => _goToJoin(context),
-                  color: Theme.of(context).canvasColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                    side: BorderSide(
-                      color: Theme.of(context).secondaryHeaderColor,
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              itemCount: userProvider.user.groups.length,
-              itemBuilder: (context, index) {
-                print(userProvider.user.groups.length);
-                //GroupModel contact = Contact.fromMap(docList[index].data());
-                print(userProvider.user.groups[index]);
-                return FutureBuilder<GroupModel>(
-                  future: firebaseMethods
-                      .getGroupData(userProvider.user.groups[index]),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      GroupModel group = snapshot.data;
-                      print(group);
-                      return ChatListTile(
-                        mini: false,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GroupScreen(
-                                group: group,
-                                currentUser: userProvider.user,
-                              ),
-                            ),
-                          );
-                        },
-                        title: Text(
-                          (group != null ? group.name : null) != null
-                              ? group.name
-                              : "..",
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  RaisedButton(
+                    child: Row(
+                      children: [
+                        Text(
+                          "Create",
                           style: TextStyle(
-                            //color: Colors.white,
                             fontFamily: "Arial",
-                            fontSize: 19,
+                            fontSize: 17,
                           ),
                         ),
-                        subtitle: Text("hello"),
-                        leading: Container(
-                          constraints:
-                              BoxConstraints(maxHeight: 60, maxWidth: 60),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(80),
-                            color: Colors.brown,
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(Icons.group),
+                      ],
+                    ),
+                    onPressed: () => _goToCreate(context),
+                    color: Theme.of(context).canvasColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      side: BorderSide(
+                        color: Theme.of(context).secondaryHeaderColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  RaisedButton(
+                    child: Row(
+                      children: [
+                        Text(
+                          "Join",
+                          style: TextStyle(
+                            fontFamily: "Arial",
+                            fontSize: 17,
                           ),
-                          child: Stack(
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.all(15),
-                                child: Icon(
-                                  Icons.group,
-                                  color: Colors.white,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(Icons.group),
+                      ],
+                    ),
+                    onPressed: () => _goToJoin(context),
+                    color: Theme.of(context).canvasColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      side: BorderSide(
+                        color: Theme.of(context).secondaryHeaderColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              child: RefreshIndicator(
+                onRefresh: userProvider.refreshUser,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  itemCount: userProvider.user.groups.length,
+                  itemBuilder: (context, index) {
+                    print(userProvider.user.groups.length);
+                    //GroupModel contact = Contact.fromMap(docList[index].data());
+                    print(userProvider.user.groups[index]);
+                    if ((userProvider.user.groups[index] == "" && userProvider.user.groups.length == 1) || userProvider.user.groups.length == 0) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(top: 75.0),
+                              child: Image(
+                                height: MediaQuery.of(context).size.height > 800
+                                    ? 300.0
+                                    : 250,
+                                fit: BoxFit.fill,
+                                image: const AssetImage(
+                                  'assets/img/chat_img.png',
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 40.0),
+                              child: Text(
+                                "Join or create a group and \n start group video call",
+                                style: TextStyle(
+                                  fontFamily: "Arial",
+                                  fontSize: 26,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }
-                    return Container();
+                    return FutureBuilder<GroupModel>(
+                      future: firebaseMethods
+                          .getGroupData(userProvider.user.groups[index]),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          GroupModel group = snapshot.data;
+                          print(group);
+                          return ChatListTile(
+                            mini: false,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GroupScreen(
+                                    group: group,
+                                    currentUser: userProvider.user,
+                                  ),
+                                ),
+                              );
+                            },
+                            title: Text(
+                              (group != null ? group.name : null) != null
+                                  ? group.name
+                                  : "..",
+                              style: TextStyle(
+                                //color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Arial",
+                                fontSize: 19,
+                              ),
+                            ),
+                            subtitle: Text(""),
+                            leading: Container(
+                              constraints:
+                                  BoxConstraints(maxHeight: 60, maxWidth: 60),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(80),
+                                gradient: LinearGradient(
+                                  colors: <Color>[
+                                    CustomTheme.loginGradientStart,
+                                    CustomTheme.loginGradientEnd
+                                  ],
+                                  begin: FractionalOffset(0.0, 0.0),
+                                  end: FractionalOffset(1.0, 1.0),
+                                  stops: <double>[0.0, 1.0],
+                                  tileMode: TileMode.clamp,
+                                ),
+                              ),
+                              child: Stack(
+                                children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.all(15),
+                                    child: Icon(
+                                      Icons.group,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        return Container();
+                      },
+                    );
                   },
-                );
-              },
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

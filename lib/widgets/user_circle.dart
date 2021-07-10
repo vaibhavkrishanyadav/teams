@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:teams/provider/user_provider.dart';
 import 'package:teams/utils/utils.dart';
+import '../theme.dart';
 import 'user_profile.dart';
 
+/// User circle widget
 
 class UserCircle extends StatelessWidget {
   @override
@@ -14,7 +16,7 @@ class UserCircle extends StatelessWidget {
       onTap: () => showModalBottomSheet(
         isScrollControlled: true,
         context: context,
-        backgroundColor: Colors.black,
+        //backgroundColor: Colors.black,
         builder: (context) => UserProfile(),
       ),
       child: Container(
@@ -23,7 +25,16 @@ class UserCircle extends StatelessWidget {
         width: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
-          color: Colors.brown,
+          gradient: LinearGradient(
+            colors: <Color>[
+              CustomTheme.loginGradientStart,
+              CustomTheme.loginGradientEnd
+            ],
+            begin: FractionalOffset(0.0, 0.0),
+            end: FractionalOffset(1.0, 1.0),
+            stops: <double>[0.0, 1.0],
+            tileMode: TileMode.clamp,
+          ),
         ),
         child: Stack(
           children: <Widget>[

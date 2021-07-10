@@ -1,11 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:teams/models/user.dart';
-import 'package:teams/utils/firebase_repo.dart';
+import 'package:teams/utils/firebase_methods.dart';
+import 'package:teams/utils/utils.dart';
 import 'package:teams/widgets/chat_list_tile.dart';
 
 import '../theme.dart';
 import 'chat_screen.dart';
+
+/// search screen for adding new contacts available and chatting with them
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key key}) : super(key: key);
@@ -15,7 +18,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  FirebaseRepo repo = FirebaseRepo();
+  FirebaseMethods firebaseMethods = FirebaseMethods();
 
   List<UserModel> userList;
   String query = "";
@@ -25,9 +28,8 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    repo.getCurrentUser().then((User user) {
-      repo.fetchAllUsers(user).then((List<UserModel> list) {
+    firebaseMethods.getCurrentUser().then((User user) {
+      firebaseMethods.fetchAllUsers(user).then((List<UserModel> list) {
         setState(() {
           userList = list;
         });
@@ -37,7 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   searchAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: CustomTheme.loginGradientStart,
+      backgroundColor: Colors.orange,
       // gradient: LinearGradient(
       //   colors: [
       //     CustomTheme.loginGradientStart,
@@ -80,7 +82,7 @@ class _SearchScreenState extends State<SearchScreen> {
               hintStyle: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 35,
-                color: Color(0x88ffffff),
+                color: Colors.white,
               ),
             ),
           ),
@@ -126,20 +128,48 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             );
           },
-          leading: CircleAvatar(
-            //backgroundImage: NetworkImage(searchedUser.profilePhoto),
-            backgroundColor: Colors.grey,
+          leading: Container(
+            constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(80),
+              gradient: LinearGradient(
+                colors: <Color>[
+                  CustomTheme.loginGradientStart,
+                  CustomTheme.loginGradientEnd
+                ],
+                begin: FractionalOffset(0.0, 0.0),
+                end: FractionalOffset(1.0, 1.0),
+                stops: <double>[0.0, 1.0],
+                tileMode: TileMode.clamp,
+              ),
+            ),
+            child: Stack(
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    Utils.getInitials(searchedUser.name),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           title: Text(
-            searchedUser.email,
+            searchedUser.name,
             style: TextStyle(
-              color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontFamily: "Arial",
+              fontSize: 19,
             ),
           ),
           subtitle: Text(
-            searchedUser.name,
-            style: TextStyle(color: Colors.grey),
+            searchedUser.email,
+            //style: TextStyle(color: Colors.grey),
           ),
         );
       }),
@@ -149,7 +179,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      //backgroundColor: Colors.black,
       appBar: searchAppBar(context),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),

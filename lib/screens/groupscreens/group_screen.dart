@@ -7,6 +7,8 @@ import 'package:teams/screens/groupscreens/group_call.dart';
 import 'package:teams/utils/firebase_methods.dart';
 import 'package:clipboard/clipboard.dart';
 
+// Group screen for starting the group video call
+
 class GroupScreen extends StatefulWidget {
   final GroupModel group;
   final UserModel currentUser;
@@ -62,7 +64,10 @@ class _GroupScreenState extends State<GroupScreen> {
               child: Text(
                 "Leave",
                 style: TextStyle(
-                    color: Colors.white, fontFamily: "Arial", fontSize: 16),
+                  color: Colors.white,
+                  fontFamily: "Arial",
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

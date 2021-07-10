@@ -4,8 +4,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/utils/call_methods.dart';
-import 'package:teams/utils/firebase_repo.dart';
-import '../theme.dart';
+import 'package:teams/utils/firebase_methods.dart';
+
+/// chat screen widget for chatting with user's contacts and doing video call
 
 class ChatScreen extends StatefulWidget {
   final UserModel receiver;
@@ -19,7 +20,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   TextEditingController textFieldController = TextEditingController();
-  FirebaseRepo repo = FirebaseRepo();
+  FirebaseMethods firebaseMethods = FirebaseMethods();
 
   UserModel sender;
 
@@ -31,7 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
 
-    repo.getCurrentUser().then((user) {
+    firebaseMethods.getCurrentUser().then((user) {
       _currentUserId = user.uid;
 
       setState(() {
@@ -139,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
       decoration: BoxDecoration(
-        color: Colors.deepOrangeAccent,
+        color: Colors.orange,
         borderRadius: BorderRadius.only(
           topLeft: messageRadius,
           topRight: messageRadius,
@@ -154,12 +155,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   getMessage(Message message) {
-    return Text(
+    return SelectableText(
       message.message,
       style: TextStyle(
         color: Colors.white,
         fontSize: 16.0,
       ),
+      toolbarOptions: ToolbarOptions(copy: true, selectAll: true,),
+      showCursor: true,
+      cursorWidth: 2,
+      cursorColor: Colors.blue,
+      cursorRadius: Radius.circular(5),
     );
   }
 
@@ -171,7 +177,7 @@ class _ChatScreenState extends State<ChatScreen> {
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
       decoration: BoxDecoration(
-        color: Colors.orange,
+        color: Colors.grey,
         borderRadius: BorderRadius.only(
           bottomRight: messageRadius,
           topRight: messageRadius,
@@ -209,7 +215,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       textFieldController.text = "";
 
-      repo.addMessageToDb(_message, sender, widget.receiver);
+      firebaseMethods.addMessageToDb(_message, sender, widget.receiver);
     }
 
     return Container(
@@ -220,7 +226,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: TextField(
               controller: textFieldController,
               style: TextStyle(
-                color: Colors.white,
+                //color: Colors.white,
               ),
               onChanged: (val) {
                 (val.length > 0 && val.trim() != "")
@@ -240,7 +246,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 filled: true,
-                fillColor: Color(0xff272c35),
+                //fillColor: Color(0xff272c35),
                 // suffixIcon: GestureDetector(
                 //   onTap: () {},
                 //   child: Icon(Icons.face),
@@ -251,12 +257,13 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
               margin: EdgeInsets.only(left: 10),
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      CustomTheme.loginGradientStart,
-                      CustomTheme.loginGradientEnd,
-                    ],
-                  ),
+                  // gradient: LinearGradient(
+                  //   colors: [
+                  //     CustomTheme.loginGradientStart,
+                  //     CustomTheme.loginGradientEnd,
+                  //   ],
+                  // ),
+                color: Colors.orange,
                   shape: BoxShape.circle),
               child: IconButton(
                 icon: Icon(

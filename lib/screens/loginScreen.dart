@@ -3,6 +3,8 @@ import 'package:teams/widgets/signIn.dart';
 import 'package:teams/widgets/signUp.dart';
 import 'package:teams/theme.dart';
 
+// Login screen with login options in app
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key key}) : super(key: key);
 
@@ -61,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen>
                 padding: const EdgeInsets.only(top: 75.0),
                 child: Image(
                     height:
-                        MediaQuery.of(context).size.height > 800 ? 191.0 : 150,
+                        MediaQuery.of(context).size.height > 800 ? 210.0 : 150,
                     fit: BoxFit.fill,
                     image: const AssetImage('assets/img/login_logo.png')),
               ),

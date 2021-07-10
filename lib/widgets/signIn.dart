@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:teams/screens/home_screen.dart';
 import 'package:teams/theme.dart';
-import 'package:teams/utils/firebase_repo.dart';
+import 'package:teams/utils/firebase_methods.dart';
 import 'snackbar.dart';
+
+/// signIn widget
 
 class SignIn extends StatefulWidget {
   const SignIn({Key key}) : super(key: key);
@@ -14,28 +16,17 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-
-  FirebaseRepo repo = FirebaseRepo();
+  FirebaseMethods firebaseMethods = FirebaseMethods();
 
   TextEditingController loginEmailController = TextEditingController();
   TextEditingController loginPasswordController = TextEditingController();
 
-  final FocusNode focusNodeEmail = FocusNode();
-  final FocusNode focusNodePassword = FocusNode();
-
   bool _obscureTextPassword = true;
-
-  @override
-  void dispose() {
-    focusNodeEmail.dispose();
-    focusNodePassword.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 23.0),
+      padding: const EdgeInsets.only(top: 30.0),
       child: Column(
         children: <Widget>[
           Stack(
@@ -56,7 +47,6 @@ class _SignInState extends State<SignIn> {
                         padding: const EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          focusNode: focusNodeEmail,
                           controller: loginEmailController,
                           keyboardType: TextInputType.emailAddress,
                           style: const TextStyle(
@@ -72,11 +62,11 @@ class _SignInState extends State<SignIn> {
                             ),
                             hintText: 'Email Address',
                             hintStyle: TextStyle(
-                                fontFamily: 'WorkSansSemiBold', fontSize: 17.0),
+                              fontFamily: 'WorkSansSemiBold',
+                              fontSize: 17.0,
+                              color: Colors.black54,
+                            ),
                           ),
-                          onSubmitted: (_) {
-                            focusNodePassword.requestFocus();
-                          },
                         ),
                       ),
                       Container(
@@ -88,7 +78,6 @@ class _SignInState extends State<SignIn> {
                         padding: const EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          focusNode: focusNodePassword,
                           controller: loginPasswordController,
                           obscureText: _obscureTextPassword,
                           style: const TextStyle(
@@ -104,7 +93,10 @@ class _SignInState extends State<SignIn> {
                             ),
                             hintText: 'Password',
                             hintStyle: const TextStyle(
-                                fontFamily: 'WorkSansSemiBold', fontSize: 17.0),
+                              fontFamily: 'WorkSansSemiBold',
+                              fontSize: 17.0,
+                              color: Colors.black54,
+                            ),
                             suffixIcon: GestureDetector(
                               onTap: _toggleLogin,
                               child: Icon(
@@ -116,9 +108,6 @@ class _SignInState extends State<SignIn> {
                               ),
                             ),
                           ),
-                          onSubmitted: (_) {
-                            _toggleSignInButton();
-                          },
                           textInputAction: TextInputAction.go,
                         ),
                       ),
@@ -166,24 +155,33 @@ class _SignInState extends State<SignIn> {
                           fontFamily: 'WorkSansBold'),
                     ),
                   ),
-                  onPressed: () => CustomSnackBar(
-                      context, const Text('Login button pressed')),
+                  onPressed: () {
+                    firebaseMethods
+                        .signInWithEmailIdAndPassword(loginEmailController.text,
+                            loginPasswordController.text)
+                        .then((User user) {
+                      if (user != null) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return HomeScreen();
+                            },
+                          ),
+                        );
+                      } else if (user == null) {
+                        CustomSnackBar(context, const Text('No user found'));
+                      } else {
+                        print("Error");
+                      }
+                    });
+                  },
                 ),
               )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0),
-            child: TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                      decoration: TextDecoration.underline,
-                      color: Colors.white,
-                      fontSize: 16.0,
-                      fontFamily: 'WorkSansMedium'),
-                )),
+          SizedBox(
+            height: 20,
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
@@ -233,48 +231,33 @@ class _SignInState extends State<SignIn> {
               ],
             ),
           ),
+          SizedBox(
+            height: 10,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(top: 10.0, right: 40.0),
-                child: GestureDetector(
-                  onTap: () => CustomSnackBar(
-                      context, const Text('Facebook button pressed')),
-                  child: Container(
-                    padding: const EdgeInsets.all(15.0),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    child: const Icon(
-                      FontAwesomeIcons.facebookF,
-                      color: Color(0xFF0084ff),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: GestureDetector(
                   onTap: () {
-                    repo.signInWithGoogle().then((User user) {
+                    firebaseMethods.signInWithGoogle().then((User user) {
                       if (user != null) {
-                        repo.authenticateUser(user).then((isNewUser) {
+                        firebaseMethods
+                            .authenticateUser(user)
+                            .then((isNewUser) {
                           if (isNewUser) {
-                            repo.addDataToDB(user).then((value) {
-
+                            firebaseMethods.addDataToDB(user).then((value) {
                               Navigator.pushReplacement(context,
                                   MaterialPageRoute(builder: (context) {
-                                    return HomeScreen();
+                                return HomeScreen();
                               }));
-
                             });
                           } else {
                             Navigator.pushReplacement(context,
                                 MaterialPageRoute(builder: (context) {
-                                  return HomeScreen();
-                                }));
+                              return HomeScreen();
+                            }));
                           }
                         });
                       } else {

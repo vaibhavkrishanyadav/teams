@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// A group model user for mapping group data from firebase
+
 class GroupModel {
   String uid;
   String name;

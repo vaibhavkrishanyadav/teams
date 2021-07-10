@@ -4,6 +4,8 @@ import 'package:teams/models/user.dart';
 import 'package:teams/utils/firebase_methods.dart';
 import 'package:teams/utils/utils.dart';
 
+/// dot indicator used for showing whether the user is online or offline
+
 class DotIndicator extends StatelessWidget {
   //const DotIndicator({Key key}) : super(key: key);
 

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// A contact model user for mapping contacts data from firebase
+
 class Contact {
   String uid;
   Timestamp addedOn;

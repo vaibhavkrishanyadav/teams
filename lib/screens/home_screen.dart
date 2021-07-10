@@ -10,6 +10,9 @@ import 'package:teams/utils/utils.dart';
 
 import 'chat_list_screen.dart';
 
+// Home screen widget which has a page view to navigate between two screen with
+// bottom navigation bar
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
 

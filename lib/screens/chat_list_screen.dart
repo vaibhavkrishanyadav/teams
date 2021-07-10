@@ -6,14 +6,16 @@ import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/provider/user_provider.dart';
 import 'package:teams/utils/firebase_methods.dart';
-import 'package:teams/utils/firebase_repo.dart';
 import 'package:teams/utils/utils.dart';
 import 'package:teams/widgets/chat_list_tile.dart';
 import 'package:teams/widgets/dot_indicator.dart';
 import 'package:teams/widgets/user_circle.dart';
 
+import '../theme.dart';
 import 'callscreens/pickup_screen.dart';
 import 'chat_screen.dart';
+
+/// chat list screen for showing all the contacts of the user with name and last message
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({Key key}) : super(key: key);
@@ -21,8 +23,6 @@ class ChatListScreen extends StatefulWidget {
   @override
   _ChatListScreenState createState() => _ChatListScreenState();
 }
-
-final FirebaseRepo repo = FirebaseRepo();
 
 class _ChatListScreenState extends State<ChatListScreen> {
   String currentUserId;
@@ -34,7 +34,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    repo.getCurrentUser().then((user) {
+    firebaseMethods.getCurrentUser().then((user) {
       setState(() {
         currentUserId = user.uid;
         initials = Utils.getInitials(user.displayName);
@@ -55,9 +55,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
           title: Text(
             "Chats",
             style: TextStyle(
-                color: Colors.white,
-                fontFamily: "Arial",
-                fontSize: 24),
+              color: Colors.white,
+              fontFamily: "Arial",
+              fontSize: 24,
+            ),
           ),
           centerTitle: true,
         ),
@@ -70,9 +71,42 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 if (snapshot.hasData) {
                   var docList = snapshot.data.docs;
 
-                  // if (docList.isEmpty) {
-                  //   return QuietBox();
-                  // }
+                  if (docList.isEmpty) {
+                    return SingleChildScrollView(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(top: 75.0),
+                              child: Image(
+                                height: MediaQuery.of(context).size.height > 800
+                                    ? 300.0
+                                    : 250,
+                                fit: BoxFit.fill,
+                                image: const AssetImage(
+                                  'assets/img/chat_img1.png',
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 40.0),
+                              child: Text(
+                                "Start a new conversation \n with other users",
+                                style: TextStyle(
+                                  fontFamily: "Arial",
+                                  fontSize: 26,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
                   return ListView.builder(
                     padding: EdgeInsets.all(10),
                     itemCount: docList.length,
@@ -100,9 +134,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                     ? user.name
                                     : "..",
                                 style: TextStyle(
-                                    //color: Colors.white,
-                                    fontFamily: "Arial",
-                                    fontSize: 19),
+                                  //color: Colors.white,
+                                  fontFamily: "Arial",
+                                  fontSize: 19,
+                                ),
                               ),
                               subtitle: LastMessageContainer(
                                 stream: firebaseMethods.fetchLastMessageBetween(
@@ -115,7 +150,16 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                     BoxConstraints(maxHeight: 60, maxWidth: 60),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(80),
-                                  color: Colors.brown,
+                                  gradient: LinearGradient(
+                                    colors: <Color>[
+                                      CustomTheme.loginGradientStart,
+                                      CustomTheme.loginGradientEnd
+                                    ],
+                                    begin: FractionalOffset(0.0, 0.0),
+                                    end: FractionalOffset(1.0, 1.0),
+                                    stops: <double>[0.0, 1.0],
+                                    tileMode: TileMode.clamp,
+                                  ),
                                 ),
                                 child: Stack(
                                   children: <Widget>[
@@ -156,7 +200,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               Navigator.pushNamed(context, '/search_screen');
             },
             icon: Icon(
-              Icons.edit,
+              Icons.search,
               color: Colors.white,
               size: 25,
             ),

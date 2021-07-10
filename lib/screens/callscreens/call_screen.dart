@@ -14,6 +14,8 @@ import 'package:teams/utils/utils.dart';
 
 import '../chat_screen.dart';
 
+// Call screen widget for one to one video call and chats
+
 class CallScreen extends StatefulWidget {
   final Call call;
   final UserModel receiver;
@@ -63,13 +65,6 @@ class _CallScreenState extends State<CallScreen> {
     configuration.dimensions = VideoDimensions(1920, 1080);
     await engine.setVideoEncoderConfiguration(configuration);
     await engine.joinChannel(null, widget.call.channelId, null, 0);
-
-    // await _initAgoraRtcEngine();
-    // _addAgoraEventHandlers();
-    // await engine.enableWebSdkInteroperability(true);
-    // await engine.setParameters(
-    //     '''{\"che.video.lowBitRateStreamParameter\":{\"width\":320,\"height\":180,\"frameRate\":15,\"bitRate\":140}}''');
-    // await engine.joinChannel(null, widget.call.channelId, null, 0);
   }
 
   addPostFrameCallback() {

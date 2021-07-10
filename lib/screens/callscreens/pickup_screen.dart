@@ -3,18 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:teams/models/call.dart';
+import 'package:teams/models/user.dart';
 import 'package:teams/provider/user_provider.dart';
 import 'package:teams/utils/call_methods.dart';
 
 import 'call_screen.dart';
 
+// pickup screen widget for receiver of call
 
 class PickupScreen extends StatelessWidget {
   final Call call;
   final CallMethods callMethods = CallMethods();
+  final UserModel user;
 
   PickupScreen({
     @required this.call,
+    @required this.user,
   });
 
   @override
@@ -37,7 +41,7 @@ class PickupScreen extends StatelessWidget {
               width: 200.0,
               height: 200.0,
               decoration: new BoxDecoration(
-                color: Colors.blue,
+                color: Colors.orange,
                 shape: BoxShape.circle,
               ),
             ),
@@ -75,7 +79,7 @@ class PickupScreen extends StatelessWidget {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CallScreen(call: call),
+                        builder: (context) => CallScreen(call: call, receiver: user,),
                       ),
                     );
                   }
@@ -116,7 +120,7 @@ class PickupLayout extends StatelessWidget {
           Call call = Call.fromMap(snapshot.data.data());
 
           if (!call.hasDialled) {
-            return PickupScreen(call: call);
+            return PickupScreen(call: call, user: userProvider.user,);
           }
         }
         return scaffold;

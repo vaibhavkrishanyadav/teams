@@ -1,3 +1,6 @@
+
+// A user model user for mapping user data from firebase
+
 class UserModel {
   String uid, name, email, username, status;
   int state;

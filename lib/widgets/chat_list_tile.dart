@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// chat list tile widget for showing all the contacts in chat list screen
+
 class ChatListTile extends StatelessWidget {
   //const ChatScreenTile({Key key}) : super(key: key);
 
@@ -17,7 +19,7 @@ class ChatListTile extends StatelessWidget {
     @required this.leading,
     @required this.title,
     this.icon,
-    @required this.subtitle,
+    this.subtitle,
     this.trailing,
     this.margin = const EdgeInsets.all(0),
     this.onTap,

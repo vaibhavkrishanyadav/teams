@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// A message model user for mapping message data from firebase
+
 class Message {
   String senderId, receiverId, type, message, photoUrl;
   Timestamp timestamp;

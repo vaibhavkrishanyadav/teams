@@ -9,6 +9,8 @@ import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/utils/utils.dart';
 
+/// This is used for calling all the functions from firebase
+
 class FirebaseMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -66,22 +68,52 @@ class FirebaseMethods {
     return userCredential.user;
   }
 
+  Future<User> createWithEmailIdAndPassword(String email, String password ) async {
+    UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: email, password: password);
+    return userCredential.user;
+  }
+
+  Future<User> signInWithEmailIdAndPassword(String email, String password) async {
+    UserCredential userCredential = await auth.signInWithEmailAndPassword(email: email, password: password);
+    return userCredential.user;
+  }
+
   Future<bool> authenticateUser(User user) async {
     QuerySnapshot result = await FirebaseFirestore.instance
-        .collection("user")
+        .collection("users")
         .where("email", isEqualTo: user.email)
         .get();
 
-    final List<DocumentSnapshot> docs = result.docs;
+    final List<QueryDocumentSnapshot<Object>> docs = result.docs;
 
     return docs.length == 0 ? true : false;
   }
 
   Future<void> addDataToDB(User user) async {
+    var gr = <String>[];
+    gr.add("");
     userModel = UserModel(
       uid: user.uid,
       email: user.email,
       name: user.displayName,
+      groups: gr,
+    );
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .set(userModel.toMap(userModel));
+  }
+
+  /// add data to DB sign up with email password
+  Future<void> addDataToDBEP(User user, String name) async {
+    var gr = <String>[];
+    gr.add("");
+    userModel = UserModel(
+      uid: user.uid,
+      email: user.email,
+      name: name,
+      groups: gr,
     );
 
     FirebaseFirestore.instance

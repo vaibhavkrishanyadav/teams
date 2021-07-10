@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/utils/firebase_methods.dart';
 
+// join group widget for joining the existing group with group uid
+
 class JoinGroup extends StatefulWidget {
   final UserModel currentUser;
 

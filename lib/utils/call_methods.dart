@@ -6,6 +6,7 @@ import 'package:teams/models/call.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/screens/callscreens/call_screen.dart';
 
+/// All functions which connect with firebase related to video call
 
 class CallMethods {
   final CollectionReference callCollection =

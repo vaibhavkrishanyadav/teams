@@ -6,7 +6,10 @@ import 'package:teams/screens/loginScreen.dart';
 import 'package:teams/utils/firebase_methods.dart';
 import 'package:teams/utils/utils.dart';
 
+import '../theme.dart';
 import 'custom_appbar.dart';
+
+/// user profile screen for with sign out button
 
 class UserProfile extends StatelessWidget {
   //const UserProfile({Key key}) : super(key: key);
@@ -53,11 +56,18 @@ class UserProfile extends StatelessWidget {
               child: Text("Profile"),
             ),
             actions: <Widget>[
-              FlatButton(
-                onPressed: () => signOut(),
-                child: Text(
-                  "Sign Out",
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  color: Colors.red,
+                ),
+                child: FlatButton(
+                  onPressed: () => signOut(),
+                  child: Text(
+                    "Sign Out",
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
                 ),
               )
             ],
@@ -67,18 +77,36 @@ class UserProfile extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  height: 40,
-                  width: 40,
+                  constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(80),
+                    gradient: LinearGradient(
+                      colors: <Color>[
+                        CustomTheme.loginGradientStart,
+                        CustomTheme.loginGradientEnd
+                      ],
+                      begin: FractionalOffset(0.0, 0.0),
+                      end: FractionalOffset(1.0, 1.0),
+                      stops: <double>[0.0, 1.0],
+                      tileMode: TileMode.clamp,
+                    ),
+                  ),
+                  child: Stack(
+                    children: <Widget>[
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          Utils.getInitials(userModel.name),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                // CachedImage(
-                //   user.profilePhoto,
-                //   isRound: true,
-                //   radius: 50,
-                // ),
                 SizedBox(width: 15),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,13 +116,16 @@ class UserProfile extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: Colors.white,
+                        //color: Colors.white,
                       ),
                     ),
                     SizedBox(height: 10),
                     Text(
                       userModel.email,
-                      style: TextStyle(fontSize: 14, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 14,
+                        //color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
