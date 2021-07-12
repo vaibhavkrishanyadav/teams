@@ -4,7 +4,7 @@ Teams app is an android app made in flutter and firebase. This is my project for
 
 ## Getting Started
 
-Download the android app form the Google drive [link](https://drive.google.com/file/d/1HymjWhceskcHrDxz6LEWvdFvKCiR8vK5/view).
+Download the android app form the Google drive [link](https://drive.google.com/drive/folders/16JU4TebbosCOGRAEGWOPZrKex0AHqRhc).
 
 ### How to use
 
@@ -21,6 +21,12 @@ Download the android app form the Google drive [link](https://drive.google.com/f
   
 * Search new user and start chatting 
 
+|         Chat screen         |                 One to One chat screen                 |          Search screen          |                 Group screen                 |
+| :-------------------------: | :-----------------------------------------------------: | :-------------------------: | :-----------------------------------------------------: |
+| ![](https://user-images.githubusercontent.com/56202792/125248918-49ae2c80-e312-11eb-8d67-cbe6900043f8.jpg) | ![](https://user-images.githubusercontent.com/56202792/125249007-5df22980-e312-11eb-9158-4e8b356b7b19.jpg) | ![](https://user-images.githubusercontent.com/56202792/125248797-21bec900-e312-11eb-8f05-905c62eebac5.jpg) | ![](https://user-images.githubusercontent.com/56202792/125248866-39964d00-e312-11eb-8983-d55e601bc199.jpg) |
+
+
+
 * One to one user chat
 
 * One to one video call from chat screen
@@ -28,6 +34,12 @@ Download the android app form the Google drive [link](https://drive.google.com/f
 * chat during video call
 
 * Create group and join group with group id
+
+
+|         Video Call screen         |                 Create group screen                 |          Join Group screen          |                 Group screen                 |
+| :-------------------------: | :-----------------------------------------------------: | :-------------------------: | :-----------------------------------------------------: |
+| ![](https://user-images.githubusercontent.com/56202792/125250767-40be5a80-e314-11eb-87e1-5d4585f927b1.jpg) | ![](https://user-images.githubusercontent.com/56202792/125250874-592e7500-e314-11eb-8613-340d2c5fa12b.jpg) | ![](https://user-images.githubusercontent.com/56202792/125250848-529ffd80-e314-11eb-98a3-fc350be16adf.jpg) | ![](https://user-images.githubusercontent.com/56202792/125250855-56338480-e314-11eb-93ff-787dde83a1fd.jpg) |
+
 
 * Start group video call as a presenter or as audience
   
