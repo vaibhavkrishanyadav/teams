@@ -248,9 +248,16 @@ class _GroupCallState extends State<GroupCall> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Group Call"),
+        backgroundColor: Colors.orange,
+        title: Text(
+          "Group call",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: "Arial",
+            fontSize: 24,
+          ),
+        ),
       ),
-      backgroundColor: Colors.black,
       body: Center(
         child: Stack(
           children: <Widget>[

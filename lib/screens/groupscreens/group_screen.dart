@@ -85,7 +85,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
-                    "UID:  " + widget.group.uid,
+                    "Group invite code: \n" + widget.group.uid,
                     style: TextStyle(
                       //color: Colors.white,
                       fontFamily: "Arial",

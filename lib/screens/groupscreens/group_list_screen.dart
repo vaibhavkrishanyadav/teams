@@ -88,7 +88,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                       ],
                     ),
                     onPressed: () => _goToCreate(context),
-                    color: Theme.of(context).canvasColor,
+                    color: Colors.orange,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       side: BorderSide(
@@ -114,7 +114,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                       ],
                     ),
                     onPressed: () => _goToJoin(context),
-                    color: Theme.of(context).canvasColor,
+                    color: Colors.orange,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                       side: BorderSide(

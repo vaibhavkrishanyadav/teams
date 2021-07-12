@@ -119,11 +119,13 @@ class _SearchScreenState extends State<SearchScreen> {
         return ChatListTile(
           mini: false,
           onTap: () {
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ChatScreen(
                   receiver: searchedUser,
+                  no: 0,
                 ),
               ),
             );

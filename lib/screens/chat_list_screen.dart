@@ -126,7 +126,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                   MaterialPageRoute(
                                     builder: (context) => ChatScreen(
                                       receiver: user,
-                                      no: 1,
+                                      no: 0,
                                     ),
                                   )),
                               title: Text(

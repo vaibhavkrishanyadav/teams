@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,7 @@ import 'package:teams/utils/utils.dart';
 
 import '../chat_screen.dart';
 
-// Call screen widget for one to one video call and chats
+/// Call screen widget for one to one video call and chats
 
 class CallScreen extends StatefulWidget {
   final Call call;
@@ -77,7 +78,7 @@ class _CallScreenState extends State<CallScreen> {
         // defining the logic
         switch (ds.data) {
           case null:
-          // snapshot is null which means that call is hanged and documents are deleted
+            // snapshot is null which means that call is hanged and documents are deleted
             Navigator.pop(context);
             break;
 
@@ -138,6 +139,7 @@ class _CallScreenState extends State<CallScreen> {
   List<Widget> getRenderViews() {
     final List<StatefulWidget> list = [];
     users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid)));
+    list.add(RtcLocalView.SurfaceView());
     print(list);
     return list;
   }
@@ -164,86 +166,36 @@ class _CallScreenState extends State<CallScreen> {
       case 1:
         return Container(
             child: Column(
-              children: <Widget>[videoView(views[0])],
-            ));
+          children: <Widget>[videoView(views[0])],
+        ));
       case 2:
         return Container(
             child: Column(
-              children: <Widget>[
-                expandedVideoRow([views[0]]),
-                expandedVideoRow([views[1]])
-              ],
-            ));
+          children: <Widget>[
+            expandedVideoRow([views[0]]),
+            expandedVideoRow([views[1]])
+          ],
+        ));
       case 3:
         return Container(
             child: Column(
-              children: <Widget>[
-                expandedVideoRow(views.sublist(0, 2)),
-                expandedVideoRow(views.sublist(2, 3))
-              ],
-            ));
+          children: <Widget>[
+            expandedVideoRow(views.sublist(0, 2)),
+            expandedVideoRow(views.sublist(2, 3))
+          ],
+        ));
       case 4:
         return Container(
             child: Column(
-              children: <Widget>[
-                expandedVideoRow(views.sublist(0, 2)),
-                expandedVideoRow(views.sublist(2, 4))
-              ],
-            ));
+          children: <Widget>[
+            expandedVideoRow(views.sublist(0, 2)),
+            expandedVideoRow(views.sublist(2, 4))
+          ],
+        ));
       default:
     }
     return Container();
   }
-
-  // /// Info panel to show logs
-  // Widget _panel() {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(vertical: 48),
-  //     alignment: Alignment.bottomCenter,
-  //     child: FractionallySizedBox(
-  //       heightFactor: 0.5,
-  //       child: Container(
-  //         padding: const EdgeInsets.symmetric(vertical: 48),
-  //         child: ListView.builder(
-  //           reverse: true,
-  //           itemCount: infoStrings.length,
-  //           itemBuilder: (BuildContext context, int index) {
-  //             if (infoStrings.isEmpty) {
-  //               return null;
-  //             }
-  //             return Padding(
-  //               padding: const EdgeInsets.symmetric(
-  //                 vertical: 3,
-  //                 horizontal: 10,
-  //               ),
-  //               child: Row(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   Flexible(
-  //                     child: Container(
-  //                       padding: const EdgeInsets.symmetric(
-  //                         vertical: 2,
-  //                         horizontal: 5,
-  //                       ),
-  //                       decoration: BoxDecoration(
-  //                         color: Colors.yellowAccent,
-  //                         borderRadius: BorderRadius.circular(5),
-  //                       ),
-  //                       child: Text(
-  //                         infoStrings[index],
-  //                         style: TextStyle(color: Colors.blueGrey),
-  //                       ),
-  //                     ),
-  //                   )
-  //                 ],
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   void _onToggleMute() {
     setState(() {
@@ -307,13 +259,13 @@ class _CallScreenState extends State<CallScreen> {
           ),
           RawMaterialButton(
             onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatScreen(
-                  receiver: widget.receiver,
-                  no: 0,
-                ),
-              )),
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                    receiver: widget.receiver,
+                    no: 1,
+                  ),
+                )),
             child: Icon(
               Icons.chat,
               color: Colors.orange,
@@ -343,12 +295,21 @@ class _CallScreenState extends State<CallScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        title: Text(
+          widget.receiver.name,
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: "Arial",
+            fontSize: 24,
+          ),
+        ),
+      ),
       body: Center(
         child: Stack(
           children: <Widget>[
             viewRows(),
-            //_panel(),
             _toolbar(),
           ],
         ),

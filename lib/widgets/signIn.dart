@@ -285,10 +285,6 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  void _toggleSignInButton() {
-    CustomSnackBar(context, const Text('Login button pressed'));
-  }
-
   void _toggleLogin() {
     setState(() {
       _obscureTextPassword = !_obscureTextPassword;

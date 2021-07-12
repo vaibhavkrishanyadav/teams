@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:teams/screens/home_screen.dart';
 import 'package:teams/theme.dart';
 import 'package:teams/utils/firebase_methods.dart';
-import 'snackbar.dart';
 
 /// signup widget
 

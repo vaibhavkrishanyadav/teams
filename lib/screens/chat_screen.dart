@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:teams/models/message.dart';
 import 'package:teams/models/user.dart';
+import 'package:teams/screens/callscreens/pickup_screen.dart';
 import 'package:teams/utils/call_methods.dart';
 import 'package:teams/utils/firebase_methods.dart';
 
@@ -47,47 +48,55 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.orange,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        centerTitle: false,
-        title: Text(
-          widget.receiver.name,
-        ),
-        actions: <Widget>[
-          (widget.no == 1) ? IconButton(
+    return PickupLayout(
+      scaffold: Scaffold(
+        //backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.orange,
+          leading: IconButton(
             icon: Icon(
-              Icons.video_call,
+              Icons.arrow_back,
             ),
-            onPressed: () async {
-              await _handleCameraAndMic(Permission.camera);
-              await _handleCameraAndMic(Permission.microphone);
-              CallUtils.dial(
-                from: sender,
-                to: widget.receiver,
-                context: context,
-              );
+            onPressed: () {
+              Navigator.pop(context);
             },
-          )
-              : Container(),
-        ],
-      ),
-      body: Column(
-        children: <Widget>[
-          Flexible(
-            child: messageList(),
           ),
-          chatControls(),
-        ],
+          centerTitle: false,
+          title: Text(
+            widget.receiver.name,
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: "Arial",
+              fontSize: 24,
+            ),
+          ),
+          actions: <Widget>[
+            (widget.no == 1)
+                ? Container()
+                : IconButton(
+                    icon: Icon(
+                      Icons.video_call,
+                    ),
+                    onPressed: () async {
+                      await _handleCameraAndMic(Permission.camera);
+                      await _handleCameraAndMic(Permission.microphone);
+                      CallUtils.dial(
+                        from: sender,
+                        to: widget.receiver,
+                        context: context,
+                      );
+                    },
+                  ),
+          ],
+        ),
+        body: Column(
+          children: <Widget>[
+            Flexible(
+              child: messageList(),
+            ),
+            chatControls(),
+          ],
+        ),
       ),
     );
   }
@@ -161,7 +170,10 @@ class _ChatScreenState extends State<ChatScreen> {
         color: Colors.white,
         fontSize: 16.0,
       ),
-      toolbarOptions: ToolbarOptions(copy: true, selectAll: true,),
+      toolbarOptions: ToolbarOptions(
+        copy: true,
+        selectAll: true,
+      ),
       showCursor: true,
       cursorWidth: 2,
       cursorColor: Colors.blue,
@@ -226,8 +238,8 @@ class _ChatScreenState extends State<ChatScreen> {
             child: TextField(
               controller: textFieldController,
               style: TextStyle(
-                //color: Colors.white,
-              ),
+                  //color: Colors.white,
+                  ),
               onChanged: (val) {
                 (val.length > 0 && val.trim() != "")
                     ? setWritingTo(true)
@@ -255,23 +267,23 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Container(
-              margin: EdgeInsets.only(left: 10),
-              decoration: BoxDecoration(
-                  // gradient: LinearGradient(
-                  //   colors: [
-                  //     CustomTheme.loginGradientStart,
-                  //     CustomTheme.loginGradientEnd,
-                  //   ],
-                  // ),
+            margin: EdgeInsets.only(left: 10),
+            decoration: BoxDecoration(
+                // gradient: LinearGradient(
+                //   colors: [
+                //     CustomTheme.loginGradientStart,
+                //     CustomTheme.loginGradientEnd,
+                //   ],
+                // ),
                 color: Colors.orange,
-                  shape: BoxShape.circle),
-              child: IconButton(
-                icon: Icon(
-                  Icons.send,
-                  size: 15,
-                ),
-                onPressed: () => isWriting ? sendMessage() : {},
+                shape: BoxShape.circle),
+            child: IconButton(
+              icon: Icon(
+                Icons.send,
+                size: 15,
               ),
+              onPressed: () => isWriting ? sendMessage() : {},
+            ),
           ),
         ],
       ),

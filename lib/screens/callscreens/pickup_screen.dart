@@ -6,6 +6,7 @@ import 'package:teams/models/call.dart';
 import 'package:teams/models/user.dart';
 import 'package:teams/provider/user_provider.dart';
 import 'package:teams/utils/call_methods.dart';
+import 'package:teams/utils/firebase_methods.dart';
 
 import 'call_screen.dart';
 
@@ -71,19 +72,21 @@ class PickupScreen extends StatelessWidget {
                 ),
                 SizedBox(width: 25),
                 IconButton(
-                  icon: Icon(Icons.call),
-                  color: Colors.green,
-                  onPressed: () async {
-                    await _handleCameraAndMic(Permission.camera);
-                    await _handleCameraAndMic(Permission.microphone);
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CallScreen(call: call, receiver: user,),
-                      ),
-                    );
-                  }
-                ),
+                    icon: Icon(Icons.call),
+                    color: Colors.green,
+                    onPressed: () async {
+                      await _handleCameraAndMic(Permission.camera);
+                      await _handleCameraAndMic(Permission.microphone);
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CallScreen(
+                            call: call,
+                            receiver: user,
+                          ),
+                        ),
+                      );
+                    }),
               ],
             ),
           ],
@@ -96,13 +99,12 @@ class PickupScreen extends StatelessWidget {
     final status = await permission.request();
     print(status);
   }
-
 }
-
 
 class PickupLayout extends StatelessWidget {
   final Widget scaffold;
   final CallMethods callMethods = CallMethods();
+  final FirebaseMethods firebaseMethods = FirebaseMethods();
 
   PickupLayout({
     @required this.scaffold,
@@ -114,22 +116,32 @@ class PickupLayout extends StatelessWidget {
 
     return (userProvider != null && userProvider.getUser != null)
         ? StreamBuilder<DocumentSnapshot>(
-      stream: callMethods.callStream(uid: userProvider.getUser.uid),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data.data() != null) {
-          Call call = Call.fromMap(snapshot.data.data());
-
-          if (!call.hasDialled) {
-            return PickupScreen(call: call, user: userProvider.user,);
-          }
-        }
-        return scaffold;
-      },
-    )
+            stream: callMethods.callStream(uid: userProvider.getUser.uid),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data.data() != null) {
+                Call call = Call.fromMap(snapshot.data.data());
+                if (!call.hasDialled) {
+                  return FutureBuilder<UserModel>(
+                      future: firebaseMethods.getUserDetailsById(call.callerId),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          UserModel user = snapshot.data;
+                          return PickupScreen(
+                            call: call,
+                            user: user,
+                          );
+                        }
+                        return Container();
+                      });
+                }
+              }
+              return scaffold;
+            },
+          )
         : Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
   }
 }
